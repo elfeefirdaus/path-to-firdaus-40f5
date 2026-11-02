@@ -288,6 +288,15 @@ body.hasbar{padding-bottom:calc(env(safe-area-inset-bottom) + 170px)}
 .thc .tl span{font-size:11.5px;color:var(--muted);line-height:1.3}
 .thc .tick{margin-left:auto;color:var(--gold-text);font-size:15px}
 .modenote{margin:-4px 0 4px}
+/* owner access */
+.owner{margin-top:12px}
+.owner summary b{color:var(--muted);font-weight:600;font-size:14px}
+.pcin{width:100%;height:56px;border-radius:14px;background:var(--card);border:1px solid var(--line);padding:0 14px;font-size:26px;letter-spacing:.4em;text-align:center;color:var(--text);-webkit-text-security:disc;font-variant-numeric:tabular-nums}
+.pcin[aria-invalid=true]{border-color:var(--danger)}
+.pcin:disabled{opacity:.6}
+.pcerr{min-height:20px;margin:8px 2px 10px;color:var(--danger);font-weight:600;line-height:1.4}
+.linkbtn{display:block;margin:10px auto 0;min-height:44px;padding:0 12px;color:var(--accent-text);text-decoration:underline;font-weight:600}
+.btn:disabled{opacity:.6}
 </style>
 <script id="theme">
 /* Colour themes, inspired by Islamic art and architecture (colour and geometry only, never figurative).
@@ -362,7 +371,7 @@ try { npApplyTheme((JSON.parse(localStorage.getItem('feeQuran.v1')) || {}).prefs
   function fresh() {
     return {
       v: 1,
-      prefs: { goal: 1, showEn: true, arSize: 30, theme: 'auto', palette: 'emerald', swipeRtl: true, remindAt: '21:00', slowSpeech: false, reciter: 'alafasy', audioRate: 1, memRepeat: 1 },
+      prefs: { goal: 1, showEn: true, arSize: 30, theme: 'auto', palette: 'emerald', swipeRtl: true, remindAt: '21:00', slowSpeech: false, reciter: 'alafasy', audioRate: 1, memRepeat: 1, owner: null },
       read: { bookmark: { page: 1, s: 1, a: 1 }, done: {}, log: {}, khatams: [] },
       hifz: {},
       mem: { s: 0 },
@@ -392,6 +401,7 @@ try { npApplyTheme((JSON.parse(localStorage.getItem('feeQuran.v1')) || {}).prefs
     if (!RATES.includes(s.prefs.audioRate)) s.prefs.audioRate = 1;
     if (!REPEATS.includes(s.prefs.memRepeat)) s.prefs.memRepeat = 1;
     s.prefs.arSize = clamp(parseInt(s.prefs.arSize, 10) || 30, 22, 44);
+    if (!ownerValid(s.prefs.owner)) s.prefs.owner = null;
     s.v = 1;
     return s;
   }
@@ -412,6 +422,44 @@ try { npApplyTheme((JSON.parse(localStorage.getItem('feeQuran.v1')) || {}).prefs
     for (const i in b.letters.best) a.letters.best[i] = Math.max(a.letters.best[i] || 0, b.letters.best[i]);
     return a;
   }
+
+  // Backup file: everything except the owner passcode record (it stays on this device only).
+  function backupCopy(st) {
+    const o = JSON.parse(JSON.stringify(st));
+    if (o.prefs) delete o.prefs.owner;
+    return o;
+  }
+
+  // Owner shortcut gate ---------------------------------------------------
+  // A passcode (4-8 digits) that shows and unlocks the "Apps" shortcut to Fee's hub. This is a UI gate, not security:
+  // the hub is a public web page. Only a salted, slow hash is stored (PBKDF2-HMAC-SHA-256 via crypto.subtle), never the code.
+  const OWNER_ITER = 100000;
+  const validPasscode = c => typeof c === 'string' && /^[0-9]{4,8}$/.test(c);
+  const hex = buf => Array.from(new Uint8Array(buf), b => b.toString(16).padStart(2, '0')).join('');
+  const unhex = h => new Uint8Array(h.match(/../g).map(x => parseInt(x, 16)));
+  function ownerValid(o) {
+    return !!o && typeof o === 'object' && o.alg === 'pbkdf2-sha256' && Number.isInteger(o.iter) && o.iter >= 1000 && o.iter <= 10000000 &&
+      typeof o.salt === 'string' && /^[0-9a-f]{32}$/.test(o.salt) && typeof o.hash === 'string' && /^[0-9a-f]{64}$/.test(o.hash);
+  }
+  const subtleOf = cr => (cr || (typeof crypto !== 'undefined' ? crypto : null) || {}).subtle || null;
+  async function hashPasscode(code, saltHex, iter = OWNER_ITER, cr) {
+    const sub = subtleOf(cr); if (!sub) throw new Error('no-crypto');
+    const key = await sub.importKey('raw', new TextEncoder().encode(code), 'PBKDF2', false, ['deriveBits']);
+    return hex(await sub.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt: unhex(saltHex), iterations: iter }, key, 256));
+  }
+  async function makeOwner(code, cr, today = dayKey()) {
+    if (!validPasscode(code)) throw new Error('invalid-passcode');
+    const c = cr || crypto, salt = hex(c.getRandomValues(new Uint8Array(16)));
+    return { alg: 'pbkdf2-sha256', iter: OWNER_ITER, salt, hash: await hashPasscode(code, salt, OWNER_ITER, c), set: today };
+  }
+  async function checkPasscode(owner, code, cr) {
+    if (!ownerValid(owner) || !validPasscode(code)) return false;
+    const h = await hashPasscode(code, owner.salt, owner.iter, cr);
+    let d = 0; for (let i = 0; i < 64; i++) d |= h.charCodeAt(i) ^ owner.hash.charCodeAt(i);
+    return d === 0;
+  }
+  // Wait after wrong tries: none for the first 2, then 30 s after the 3rd, 6th, 9th... doubling up to 5 minutes.
+  const gateDelay = fails => fails < 3 || fails % 3 ? 0 : Math.min(300, 30 * Math.pow(2, fails / 3 - 1)) * 1000;
 
   // Reading --------------------------------------------------------------
   function markDone(st, page, today = dayKey()) {
@@ -595,7 +643,7 @@ try { npApplyTheme((JSON.parse(localStorage.getItem('feeQuran.v1')) || {}).prefs
   // Short surahs suggested for starting hifz, per SPEC: 1, then 114 back to 78.
   const SUGGESTED = [1].concat(Array.from({ length: 37 }, (_, i) => 114 - i));
 
-  const api = { KEY, PAGES, INTERVALS, GOALS, SUGGESTED, dayKey, addDays, diffDays, fresh, migrate, validBackup, mergeBackup, markDone, unmarkDone, pagesDone, todayCount, khatamComplete, firstUndoneFrom, newKhatam, dayMet, streak, bestStreak, pace, projection, memorise, unmemorise, review, dueList, memorisedIn, memorisedTotal, splitBismillah, letterForms, pickArabicVoice, AUDIO_HOST, RECITERS, PALETTES, RATES, REPEATS, reciter, audioUrl, audioQueue, audioNext, audioStart, arNum, words, buildIndex, search, ics };
+  const api = { OWNER_ITER, validPasscode, ownerValid, hashPasscode, makeOwner, checkPasscode, gateDelay, backupCopy, KEY, PAGES, INTERVALS, GOALS, SUGGESTED, dayKey, addDays, diffDays, fresh, migrate, validBackup, mergeBackup, markDone, unmarkDone, pagesDone, todayCount, khatamComplete, firstUndoneFrom, newKhatam, dayMet, streak, bestStreak, pace, projection, memorise, unmemorise, review, dueList, memorisedIn, memorisedTotal, splitBismillah, letterForms, pickArabicVoice, AUDIO_HOST, RECITERS, PALETTES, RATES, REPEATS, reciter, audioUrl, audioQueue, audioNext, audioStart, arNum, words, buildIndex, search, ics };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.QCore = api;
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
@@ -655,6 +703,7 @@ try { npApplyTheme((JSON.parse(localStorage.getItem('feeQuran.v1')) || {}).prefs
     left: '<path d="M15 5l-7 7 7 7"/>', right: '<path d="M9 5l7 7-7 7"/>',
     list: '<path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/>',
     play: '<path d="M7 4.5v15l12.5-7.5z"/>', pause: '<path d="M6.5 4.5h4v15h-4zM13.5 4.5h4v15h-4z"/>', prev: '<path d="M6 5v14M19 5l-10 7 10 7z"/>', next: '<path d="M18 5v14M5 5l10 7-10 7z"/>', x: '<path d="M6 6l12 12M18 6L6 18"/>',
+    lock: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
     hub: '<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>'
   };
   const svg = (k, sz = 20, fill) => `<svg width="${sz}" height="${sz}" viewBox="0 0 24 24" fill="${fill ? 'currentColor' : 'none'}" stroke="${fill ? 'none' : 'currentColor'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ico[k]}</svg>`;
@@ -695,7 +744,7 @@ try { npApplyTheme((JSON.parse(localStorage.getItem('feeQuran.v1')) || {}).prefs
     const lastMem = S.mem.s ? S.mem.s : 0, lm = lastMem ? `${sname(lastMem)} ${C.memorisedIn(S, lastMem)}/${I.surah(lastMem).ayah_count}` : '';
     const complete = C.khatamComplete(S);
     app.innerHTML = `
-      <div class="top"><a class="pill sm" href="${HUB}" aria-label="Back to Fee's apps">${svg('hub', 18)} Apps</a><div class="sp"></div></div>
+      ${S.prefs.owner ? `<div class="top"><button class="pill sm" id="apps" aria-label="My apps (passcode)">${svg('lock', 16)} Apps</button><div class="sp"></div></div>` : ''}
       <h1>${logo()}Path to Firdaus</h1>
       <div class="sub">Assalamu alaikum, Fee · ${esc(fmtDate(today))}</div>
       <section class="card hero" aria-label="Today's reading">
@@ -723,6 +772,7 @@ try { npApplyTheme((JSON.parse(localStorage.getItem('feeQuran.v1')) || {}).prefs
       </section>
       ${lettersCard()}
       ${footer()}`;
+    const ab = $('#apps'); if (ab) ab.onclick = openApps;
   }
   function lettersCard() {
     const LTn = JSON.parse(document.getElementById('ldata').textContent).lessons.length, n = Object.keys(S.letters.done).length;
@@ -1024,7 +1074,9 @@ try { npApplyTheme((JSON.parse(localStorage.getItem('feeQuran.v1')) || {}).prefs
         <p class="small muted" style="margin-top:10px;line-height:1.5">iPhone keeps separate storage for the Home Screen app and for Safari, so progress in one doesn't show in the other. Use a backup to move it.</p>
         <button class="btn danger" id="s-reset" style="margin-top:6px">Reset all progress</button></section>
       <a class="btn alt" href="#/about">About &amp; sources</a>
+      ${ownerSection()}
       ${footer()}`;
+    bindOwner();
     const set = (k, v) => { S.prefs[k] = v; save(); npApplyTheme(S.prefs); vSettings(); };
     $('#goal').onclick = e => { const b = e.target.closest('[data-v]'); if (!b) return; if (b.dataset.v === 'custom') { const v = parseFloat(prompt('Pages per day (0.5 to 604)', P.goal)); if (v >= 0.5 && v <= 604) set('goal', v); } else set('goal', parseFloat(b.dataset.v)); };
     $('#s-en').onclick = () => set('showEn', !P.showEn);
@@ -1036,7 +1088,7 @@ try { npApplyTheme((JSON.parse(localStorage.getItem('feeQuran.v1')) || {}).prefs
     $('#pal').onclick = e => { const b = e.target.closest('[data-v]'); if (b) set('palette', b.dataset.v); };
     $('#s-time').onchange = e => { if (/^\d\d:\d\d$/.test(e.target.value)) set('remindAt', e.target.value); };
     $('#s-ics').onclick = () => download('path-to-firdaus-reminder.ics', C.ics(P.remindAt, new Date(), APP_URL), 'text/calendar');
-    $('#s-exp').onclick = () => download('path-to-firdaus-backup-' + C.dayKey() + '.json', JSON.stringify(S, null, 1), 'application/json');
+    $('#s-exp').onclick = () => download('path-to-firdaus-backup-' + C.dayKey() + '.json', JSON.stringify(C.backupCopy(S), null, 1), 'application/json'); // passcode record never leaves the device
     $('#s-imp').onclick = () => $('#s-file').click();
     $('#s-file').onchange = async e => {
       const f = e.target.files[0]; if (!f) return; let o;
@@ -1045,7 +1097,7 @@ try { npApplyTheme((JSON.parse(localStorage.getItem('feeQuran.v1')) || {}).prefs
       sheet(`<h3>Import backup</h3><p class="small" style="margin-bottom:12px">The backup has ${Object.keys(o.read.done || {}).length} pages read and ${Object.keys(o.hifz).length} memorised ayat. Merge keeps everything from both. Replace swaps your current progress for the backup.</p>
         <div class="row"><button class="btn alt" id="im-m">Merge</button><button class="btn danger" id="im-r">Replace</button></div><button class="btn alt" id="im-x" style="margin-top:8px">Cancel</button>`, sh => {
         $('#im-m', sh).onclick = () => { S = C.mergeBackup(S, o); save(); closeSheet(); npApplyTheme(S.prefs); render(); toast('Backup merged'); };
-        $('#im-r', sh).onclick = () => { S = C.migrate(o); save(); closeSheet(); npApplyTheme(S.prefs); render(); toast('Backup restored'); };
+        $('#im-r', sh).onclick = () => { const own = S.prefs.owner; S = C.migrate(o); S.prefs.owner = own; save(); closeSheet(); npApplyTheme(S.prefs); render(); toast('Backup restored'); };
         $('#im-x', sh).onclick = closeSheet;
       });
       e.target.value = '';
@@ -1058,6 +1110,109 @@ try { npApplyTheme((JSON.parse(localStorage.getItem('feeQuran.v1')) || {}).prefs
   function download(name, text, type) {
     const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name;
     document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+  }
+
+  // ---------- Owner access: passcode-gated shortcut to Fee's other apps ----------
+  // A UI gate only: it hides the shortcut from people using this app on their own phones and asks for a code on this one.
+  // The hub itself is a public web page. Only a salted PBKDF2-SHA-256 hash is saved (prefs.owner), never the code,
+  // and it is left out of backup files. Wrong tries and the "unlocked" flag live in sessionStorage (this session only).
+  const GATE_KEY = C.KEY + '.gate', UNLOCK_KEY = C.KEY + '.unlocked';
+  const ss = { get(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { sessionStorage.setItem(k, v); } catch (e) {} }, del(k) { try { sessionStorage.removeItem(k); } catch (e) {} } };
+  const gate = () => { try { const g = JSON.parse(ss.get(GATE_KEY)); if (g && typeof g.fails === 'number') return g; } catch (e) {} return { fails: 0, until: 0 }; };
+  const navigateTo = u => (window.__npNavigate || (x => location.assign(x)))(u);
+  const cryptoOK = () => !!(window.crypto && crypto.subtle && crypto.getRandomValues);
+  function ownerSection() {
+    const o = S.prefs.owner;
+    return `<details class="card owner" id="owner"><summary><b>Owner access</b></summary>
+      <p class="small muted" style="line-height:1.5;margin:4px 0 12px">${o
+        ? 'A passcode is set on this device. The small Apps shortcut shows on Today and asks for it.'
+        : 'Optional. Set a passcode to show a small Apps shortcut on Today that opens your other apps. People using this app on their own phones never see it.'}</p>
+      ${o ? `<div class="row"><button class="btn alt" id="ow-chg">Change passcode</button><button class="btn alt" id="ow-del">Remove</button></div>
+        <button class="linkbtn small" id="ow-forgot">Forgot it?</button>` : `<button class="btn alt" id="ow-set">Set a passcode</button>`}
+      <p class="small muted" style="line-height:1.5;margin-top:10px">This only hides and locks a shortcut. It isn't a lock on your other apps: anyone who has their web address can still open them.</p>
+    </details>`;
+  }
+  function bindOwner() {
+    const b = id => document.getElementById(id);
+    if (b('ow-set')) b('ow-set').onclick = () => setPasscode(false);
+    if (b('ow-chg')) b('ow-chg').onclick = () => askCurrent('Change passcode', 'Enter your current passcode first.', () => setPasscode(true));
+    if (b('ow-del')) b('ow-del').onclick = () => askCurrent('Remove passcode', 'Enter your current passcode to remove it and hide the Apps shortcut.', removeOwner);
+    if (b('ow-forgot')) b('ow-forgot').onclick = () => sheet(`<h3>Forgot your passcode?</h3><p class="small" style="margin-bottom:12px;line-height:1.5">You can remove it. The Apps shortcut disappears from Today, and you can set a new passcode afterwards. Your reading and memorisation aren't affected.</p><div class="row"><button class="btn alt" id="fg-x">Cancel</button><button class="btn danger" id="fg-y">Remove passcode</button></div>`, sh => { $('#fg-x', sh).onclick = closeSheet; $('#fg-y', sh).onclick = removeOwner; });
+  }
+  function removeOwner() { S.prefs.owner = null; save(); ss.del(UNLOCK_KEY); ss.del(GATE_KEY); closeSheet(); render(); openOwner(); toast('Passcode removed'); }
+  const openOwner = () => { const d = document.getElementById('owner'); if (d) { d.open = true; d.scrollIntoView({ block: 'center' }); } };
+  // One numeric entry sheet. check(code) resolves to an error message, or '' to accept.
+  let pinSeq = 0;
+  function pinSheet({ title, note, okLabel = 'Continue', err = '', check }) {
+    const my = ++pinSeq;
+    sheet(`<h3>${esc(title)}</h3>${note ? `<p class="small muted" style="margin:-4px 0 12px;line-height:1.5">${esc(note)}</p>` : ''}
+      <input id="pc" class="pcin" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="8" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" aria-label="${esc(title)}: 4 to 8 digits" aria-describedby="pcerr">
+      <p id="pcerr" class="pcerr small" role="alert" aria-live="assertive">${esc(err)}</p>
+      <div class="row"><button class="btn alt" id="pc-x">Cancel</button><button class="btn" id="pc-ok">${esc(okLabel)}</button></div>`, sh => {
+      const inp = $('#pc', sh), er = $('#pcerr', sh), okb = $('#pc-ok', sh);
+      let busy = false;
+      const showErr = m => { er.textContent = m; inp.value = ''; inp.setAttribute('aria-invalid', m ? 'true' : 'false'); if (m) inp.focus(); };
+      inp.oninput = () => { const v = inp.value.replace(/\D/g, '').slice(0, 8); if (v !== inp.value) inp.value = v; };
+      const submit = async () => {
+        if (busy || okb.disabled) return;
+        const v = inp.value;
+        if (!C.validPasscode(v)) { showErr('Use 4 to 8 digits.'); return; }
+        busy = true; okb.disabled = true;
+        let m; try { m = await check(v); } catch (e) { m = 'Something went wrong. Please try again.'; }
+        busy = false; if (my !== pinSeq || !$('#scrim').classList.contains('on')) return; // check() moved on to another sheet, or it closed
+        okb.disabled = inp.disabled;
+        if (m) showErr(m); else closeSheet();
+      };
+      okb.onclick = submit;
+      inp.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); submit(); } };
+      $('#pc-x', sh).onclick = closeSheet;
+      sh.gate = { inp, er, okb };
+      setTimeout(() => inp.focus(), 50);
+    });
+    return $('#sheet').gate;
+  }
+  const noCrypto = 'This browser can’t set a passcode here. Open the app from its https:// link.';
+  function setPasscode(changing, err = '') {
+    if (!cryptoOK()) { toast(noCrypto); return; }
+    pinSheet({ title: changing ? 'New passcode' : 'Choose a passcode', note: '4 to 8 digits. You’ll enter it twice.', err, check: async v => {
+      pinSheet({ title: 'Enter it again', note: 'To make sure it’s right.', okLabel: 'Save passcode', check: async w => {
+        if (w !== v) { setPasscode(changing, 'The two codes didn’t match. Please choose your passcode again.'); return ''; }
+        S.prefs.owner = await C.makeOwner(w, window.crypto, C.dayKey()); save(); ss.del(UNLOCK_KEY); ss.del(GATE_KEY);
+        closeSheet(); render(); openOwner(); toast(changing ? 'Passcode changed' : 'Passcode set. The Apps shortcut is on Today.');
+        return '';
+      } });
+      return '';
+    } });
+  }
+  // Ask for the current code (with the wrong-try wait), then run next().
+  function askCurrent(title, note, next) {
+    if (!cryptoOK()) { toast(noCrypto); return; }
+    let timer = null;
+    const g0 = pinSheet({ title, note, okLabel: 'Continue', check: async v => {
+      const g = gate();
+      if (g.until > Date.now()) return waitMsg(g.until);
+      if (await C.checkPasscode(S.prefs.owner, v, window.crypto)) { ss.set(GATE_KEY, JSON.stringify({ fails: 0, until: 0 })); clearInterval(timer); next(); return ''; }
+      g.fails++; const d = C.gateDelay(g.fails); g.until = d ? Date.now() + d : 0; ss.set(GATE_KEY, JSON.stringify(g));
+      if (d) lockUI();
+      return d ? 'That’s not the passcode. ' + waitMsg(g.until) : 'That’s not the passcode. Please try again.';
+    } });
+    const lockUI = () => {
+      clearInterval(timer);
+      const tick = () => {
+        const g = gate(), left = g.until - Date.now();
+        if (!g0.inp.isConnected) { clearInterval(timer); return; }
+        if (left > 0) { g0.inp.disabled = true; g0.okb.disabled = true; g0.er.textContent = (g0.er.textContent.startsWith('That’s') ? 'That’s not the passcode. ' : '') + waitMsg(g.until); }
+        else { clearInterval(timer); g0.inp.disabled = false; g0.okb.disabled = false; g0.er.textContent = ''; g0.inp.focus(); }
+      };
+      tick(); timer = setInterval(tick, 1000);
+    };
+    if (gate().until > Date.now()) lockUI();
+  }
+  const waitMsg = until => { const s = Math.max(1, Math.ceil((until - Date.now()) / 1000)); return 'Too many tries. Please wait ' + (s >= 60 ? Math.ceil(s / 60) + (s > 60 ? ' minutes' : ' minute') : s + (s === 1 ? ' second' : ' seconds')) + '.'; };
+  function openApps() {
+    if (!S.prefs.owner) return;
+    if (ss.get(UNLOCK_KEY) === '1') { navigateTo(HUB); return; }
+    askCurrent('My apps', 'Enter your passcode.', () => { ss.set(UNLOCK_KEY, '1'); closeSheet(); navigateTo(HUB); });
   }
 
   // ---------- About ----------
@@ -1370,7 +1525,7 @@ try { npApplyTheme((JSON.parse(localStorage.getItem('feeQuran.v1')) || {}).prefs
   if (window.matchMedia) matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => npApplyTheme(S.prefs));
   npApplyTheme(S.prefs);
   render();
-  window.__np = { get state() { return S; }, set state(v) { S = C.migrate(v); save(); npApplyTheme(S.prefs); render(); }, Q, I, C, ui, render, get quiz() { return quiz; }, get deck() { return deck; }, TTS, AU };
+  window.__np = { get state() { return S; }, set state(v) { S = C.migrate(v); save(); npApplyTheme(S.prefs); render(); }, Q, I, C, ui, render, get quiz() { return quiz; }, get deck() { return deck; }, TTS, AU, openApps };
 })();
 </script>
 </body></html>

@@ -63,11 +63,11 @@ h2{font-size:19px;font-weight:750;margin:22px 0 10px;color:var(--accent-text)}
 .hero .big{font-size:26px;line-height:1.2;font-weight:800;margin:4px 0 2px}
 .hero .s{font-size:14.5px;opacity:.85}
 .hero .sname{font-family:var(--ar);font-size:24px;line-height:1.6;margin-top:4px}
-.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:52px;border-radius:16px;background:var(--accent);color:#fff;font-weight:700;font-size:17px;border:0;text-decoration:none}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:52px;border-radius:16px;background:var(--accent);color:var(--on-accent);font-weight:700;font-size:17px;border:0;text-decoration:none}
 .hero .btn{background:var(--card);color:var(--accent-text);margin-top:14px}
 .btn.alt{background:var(--card2);color:var(--text);border:1px solid var(--line)}
 .btn.done{background:var(--goldl);color:var(--text)}
-.btn.danger{background:var(--danger);color:#fff}
+.btn.danger{background:var(--danger);color:var(--bg)}
 .row{display:flex;gap:10px}
 .row>*{flex:1}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
@@ -85,7 +85,7 @@ h2{font-size:19px;font-weight:750;margin:22px 0 10px;color:var(--accent-text)}
 .tabs button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;min-height:52px;justify-content:center;font-size:11.5px;font-weight:600;color:var(--muted);border-radius:12px;position:relative}
 .tabs button.on{color:var(--accent-text)}
 .tabs svg{width:24px;height:24px}
-.tabs .badge{position:absolute;top:4px;left:calc(50% + 6px);min-width:18px;height:18px;border-radius:9px;background:var(--gold);color:#fff;font-size:11px;display:grid;place-items:center;padding:0 5px}
+.tabs .badge{position:absolute;top:4px;left:calc(50% + 6px);min-width:18px;height:18px;border-radius:9px;background:var(--gold);color:#1b1b1b;font-size:11px;display:grid;place-items:center;padding:0 5px}
 /* reader */
 .rhead{display:flex;align-items:center;gap:8px;margin:2px 0 10px}
 .rhead .t{flex:1;text-align:center}
@@ -113,7 +113,7 @@ h2{font-size:19px;font-weight:750;margin:22px 0 10px;color:var(--accent-text)}
 select,input[type=number],input[type=time]{width:100%;min-height:46px;border-radius:14px;background:var(--card);border:1px solid var(--line);padding:0 12px;font-size:16px;-webkit-appearance:none;appearance:none}
 .seg{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
 .seg button{min-height:40px;padding:0 13px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-size:14px;font-weight:600}
-.seg button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.seg button.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
 .mcard{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px 14px;margin-bottom:10px}
 .mcard.memo{border-color:var(--gold)}
 .mtop{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);font-weight:600}
@@ -124,13 +124,13 @@ select,input[type=number],input[type=time]{width:100%;min-height:46px;border-rad
 .mact{display:flex;gap:8px;margin-top:8px}
 .mact .pill{flex:1}
 .pill.gold{background:var(--goldl);border-color:var(--gold)}
-.pill.ok{background:var(--accent);color:#fff;border-color:var(--accent)}
+.pill.ok{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
 /* calendar */
 .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;text-align:center}
 .cal .h{font-size:11.5px;color:var(--muted);font-weight:700;padding-bottom:2px}
 .cal .d{aspect-ratio:1;border-radius:10px;display:grid;place-items:center;font-size:13px;background:var(--card2);color:var(--muted);position:relative}
-.cal .d.r{background:var(--accent);color:#fff;font-weight:700}
-.cal .d.r2{background:var(--accent);color:#fff;font-weight:700}
+.cal .d.r{background:var(--accent);color:var(--on-accent);font-weight:700}
+.cal .d.r2{background:var(--accent);color:var(--on-accent);font-weight:700}
 .cal .d.t{outline:2px solid var(--gold)}
 .cal .d.e{background:none}
 .calnav{display:flex;align-items:center;gap:8px;margin-bottom:10px}
@@ -152,7 +152,7 @@ select,input[type=number],input[type=time]{width:100%;min-height:46px;border-rad
 .about p,.about li{font-size:14px;line-height:1.55;margin-bottom:8px}
 .about ul{padding-left:18px}
 pre.notice{white-space:pre-wrap;font-size:11.5px;line-height:1.45;background:var(--card2);border-radius:12px;padding:10px;overflow-x:auto;font-family:ui-monospace,Menlo,monospace}
-.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 84px);transform:translateX(-50%) translateY(20px);background:var(--accent);color:#fff;padding:12px 18px;border-radius:14px;font-weight:600;font-size:14.5px;opacity:0;pointer-events:none;transition:.25s;z-index:50;max-width:90vw;text-align:center}
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 84px);transform:translateX(-50%) translateY(20px);background:var(--accent);color:var(--on-accent);padding:12px 18px;border-radius:14px;font-weight:600;font-size:14.5px;opacity:0;pointer-events:none;transition:.25s;z-index:50;max-width:90vw;text-align:center}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 .scrim{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:flex-end;justify-content:center;z-index:40}
 .scrim.on{display:flex}
@@ -274,28 +274,64 @@ body.hasbar{padding-bottom:calc(env(safe-area-inset-bottom) + 170px)}
 #recs .radio{width:22px;height:22px;border-radius:50%;border:2px solid var(--line);flex:none}
 #recs button.sel .radio{border:7px solid var(--accent)}
 .aubar .abt em.rep{font-style:normal;font-weight:700;color:var(--gold-text)}
+
+/* colour themes */
+.thgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.thc{display:flex;flex-direction:column;align-items:stretch;gap:0;border-radius:16px;overflow:hidden;border:1.5px solid var(--line);background:var(--card);text-align:left;min-height:44px;padding:0}
+.thc.on{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold)}
+.thc .sw3{display:flex;height:46px;position:relative}
+.thc .sw3 i{flex:1}
+.thc .sw3 i:first-child{flex:2}
+.thc .sw3 svg{position:absolute;left:8px;top:7px;width:32px;height:32px;opacity:.55}
+.thc .tl{padding:7px 10px 9px;display:flex;flex-direction:column;gap:1px}
+.thc .tl b{font-size:14.5px;color:var(--text);display:flex;align-items:center;gap:6px}
+.thc .tl span{font-size:11.5px;color:var(--muted);line-height:1.3}
+.thc .tick{margin-left:auto;color:var(--gold-text);font-size:15px}
+.modenote{margin:-4px 0 4px}
 </style>
 <script id="theme">
-/* Palettes (light + dark). Applied before first paint by the head script. Contrast is checked by tests/contrast.test.js. */
+/* Colour themes, inspired by Islamic art and architecture (colour and geometry only, never figurative).
+   Each theme has a light and a dark set; a theme with `only` is always shown in that mode.
+   Ids are stable (saved in feeQuran.v1 prefs.palette). Applied before first paint by the head script.
+   Contrast (WCAG AA, and AAA for the Quran text on its page) is checked by tests/contrast.test.js. */
 var NP_PALETTES = {
-  emerald: { name: 'Emerald & Gold',
+  emerald: { name: 'Masjid Green', desc: 'Deep mosque green with gold', only: null,
     light: { bg: '#FBF8F1', card: '#FFFFFF', card2: '#E8F1EC', line: '#E2DBC9', text: '#1E2A25', muted: '#56635B', accent: '#0F4D3A', accentText: '#0F4D3A', onAccent: '#FFFFFF', gold: '#C9A24A', goldText: '#7E6118', goldl: '#F4EAD0', danger: '#A3372C' },
     dark:  { bg: '#0D1714', card: '#15231E', card2: '#1B2D26', line: '#29403A', text: '#E9EFEA', muted: '#A5B5AC', accent: '#1F7356', accentText: '#7BCFA9', onAccent: '#FFFFFF', gold: '#D8B866', goldText: '#D8B866', goldl: '#33301F', danger: '#E58A7C' } },
-  night: { name: 'Night Blue & Silver',
-    light: { bg: '#F5F7FA', card: '#FFFFFF', card2: '#E7ECF3', line: '#D6DEE8', text: '#1A2233', muted: '#545F72', accent: '#1E3A64', accentText: '#1E3A64', onAccent: '#FFFFFF', gold: '#8C99AD', goldText: '#4C586C', goldl: '#E3E8F0', danger: '#A3372C' },
-    dark:  { bg: '#0E1320', card: '#161D2E', card2: '#1E2740', line: '#2C3754', text: '#E6EAF2', muted: '#A6B0C4', accent: '#35589A', accentText: '#A3BEEE', onAccent: '#FFFFFF', gold: '#C3CCDA', goldText: '#C3CCDA', goldl: '#283149', danger: '#E58A7C' } },
-  sand: { name: 'Sand',
-    light: { bg: '#F7F0E3', card: '#FFFBF3', card2: '#EFE3CC', line: '#E0D0B0', text: '#2E2418', muted: '#675944', accent: '#6E4519', accentText: '#6E4519', onAccent: '#FFFFFF', gold: '#B88A3E', goldText: '#80571A', goldl: '#F1E2C2', danger: '#A3372C' },
-    dark:  { bg: '#19140D', card: '#231C13', card2: '#2E251A', line: '#43362A', text: '#F1E8D8', muted: '#BCAD94', accent: '#8A5926', accentText: '#E3B67F', onAccent: '#FFFFFF', gold: '#D9B072', goldText: '#D9B072', goldl: '#3A2F1F', danger: '#E58A7C' } }
+  madinah: { name: 'Madinah', desc: 'The Green Dome on soft cream', only: null,
+    light: { bg: '#F8F4E8', card: '#FFFDF7', card2: '#E5EFE4', line: '#E3DCC8', text: '#21302A', muted: '#55645B', accent: '#2C6B4E', accentText: '#275F45', onAccent: '#FFFFFF', gold: '#B99A4F', goldText: '#765C1E', goldl: '#F1E9D2', danger: '#A3372C' },
+    dark:  { bg: '#101A15', card: '#18251E', card2: '#1F3027', line: '#2E4238', text: '#ECF1EC', muted: '#A9B8AE', accent: '#337556', accentText: '#94D6B3', onAccent: '#FFFFFF', gold: '#D4BC7A', goldText: '#D4BC7A', goldl: '#30301F', danger: '#E58A7C' } },
+  iznik: { name: 'Iznik Blue', desc: 'Ottoman tiles: cobalt, turquoise, white', only: null,
+    light: { bg: '#F5F8FC', card: '#FFFFFF', card2: '#E2F0F1', line: '#D2DEEA', text: '#14233A', muted: '#4B5B70', accent: '#1D4A94', accentText: '#1D4A94', onAccent: '#FFFFFF', gold: '#2A9D8F', goldText: '#17675E', goldl: '#DCF0EC', danger: '#B03A2E' },
+    dark:  { bg: '#0B1424', card: '#121E33', card2: '#182A45', line: '#263A5A', text: '#E8EEF7', muted: '#A3B2C8', accent: '#2C5BAD', accentText: '#9DBDF2', onAccent: '#FFFFFF', gold: '#4CC3B4', goldText: '#6FD3C5', goldl: '#143238', danger: '#EE8C80' } },
+  sand: { name: 'Andalusian Sand', desc: 'Alhambra sandstone, terracotta, ivory', only: null,
+    light: { bg: '#FAF4EA', card: '#FFFCF6', card2: '#F1E4D2', line: '#E5D3BA', text: '#2E2219', muted: '#6A5745', accent: '#97472A', accentText: '#8A4022', onAccent: '#FFFFFF', gold: '#C2994F', goldText: '#7A581B', goldl: '#F3E5C8', danger: '#A3372C' },
+    dark:  { bg: '#1A1310', card: '#241A15', card2: '#2F231C', line: '#45352A', text: '#F3E9DD', muted: '#C0AD98', accent: '#A0532F', accentText: '#EBA982', onAccent: '#FFFFFF', gold: '#D9B072', goldText: '#D9B072', goldl: '#3A2D1F', danger: '#E58A7C' } },
+  night: { name: 'Qiyam', desc: 'Night prayer: midnight blue and gold', only: 'dark',
+    light: null,
+    dark:  { bg: '#0A1022', card: '#111A33', card2: '#18233F', line: '#27345A', text: '#ECEEF5', muted: '#A9B2C8', accent: '#2A4580', accentText: '#E3C57E', onAccent: '#FFFFFF', gold: '#D4AF5A', goldText: '#E3C57E', goldl: '#2A2C2A', danger: '#EE8C80' } },
+  kaaba: { name: 'Kiswa', desc: 'Black and gold, like the Kaaba’s cover', only: 'dark',
+    light: null,
+    dark:  { bg: '#0B0B0A', card: '#161514', card2: '#201E1A', line: '#35312A', text: '#F1ECE2', muted: '#B3AB9B', accent: '#C9A447', accentText: '#DDBB66', onAccent: '#14110A', gold: '#C9A447', goldText: '#DDBB66', goldl: '#2D2716', danger: '#E58A7C' } }
 };
+var NP_DEFAULT_PALETTE = 'emerald';
+function npMode(prefs) {
+  prefs = prefs || {};
+  var pal = NP_PALETTES[prefs.palette] || NP_PALETTES[NP_DEFAULT_PALETTE];
+  if (pal.only) return pal.only;
+  return prefs.theme === 'light' || prefs.theme === 'dark' ? prefs.theme : (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+}
 function npApplyTheme(prefs) {
   prefs = prefs || {};
-  var pal = NP_PALETTES[prefs.palette] || NP_PALETTES.emerald;
-  var mode = prefs.theme === 'light' || prefs.theme === 'dark' ? prefs.theme : (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-  var c = pal[mode], r = document.documentElement.style;
+  var pal = NP_PALETTES[prefs.palette] || NP_PALETTES[NP_DEFAULT_PALETTE];
+  var mode = npMode(prefs);
+  var c = pal[mode], d = document.documentElement, r = d.style;
   for (var k in c) r.setProperty('--' + k.replace(/[A-Z]/g, function (m) { return '-' + m.toLowerCase(); }), c[k]);
   r.setProperty('--fs', (prefs.arSize || 30) + 'px');
-  document.documentElement.setAttribute('data-mode', mode);
+  r.colorScheme = mode;
+  d.setAttribute('data-mode', mode);
+  d.setAttribute('data-palette', NP_PALETTES[prefs.palette] ? prefs.palette : NP_DEFAULT_PALETTE);
+  // iOS / Android browser chrome and Home Screen status bar follow the page background.
   var m = document.querySelector('meta[name=theme-color]'); if (m) m.setAttribute('content', c.bg);
 }
 try { npApplyTheme((JSON.parse(localStorage.getItem('feeQuran.v1')) || {}).prefs); } catch (e) { npApplyTheme({}); }
@@ -351,6 +387,8 @@ try { npApplyTheme((JSON.parse(localStorage.getItem('feeQuran.v1')) || {}).prefs
     for (const k of ['known', 'done', 'best']) if (!s.letters[k] || typeof s.letters[k] !== 'object') s.letters[k] = {};
     const g = Number(s.prefs.goal); s.prefs.goal = g > 0 ? clamp(g, 0.5, 604) : 1;
     if (!RECITERS.some(r => r.id === s.prefs.reciter)) s.prefs.reciter = 'alafasy';
+    if (!PALETTES.includes(s.prefs.palette)) s.prefs.palette = 'emerald';
+    if (!['auto', 'light', 'dark'].includes(s.prefs.theme)) s.prefs.theme = 'auto';
     if (!RATES.includes(s.prefs.audioRate)) s.prefs.audioRate = 1;
     if (!REPEATS.includes(s.prefs.memRepeat)) s.prefs.memRepeat = 1;
     s.prefs.arSize = clamp(parseInt(s.prefs.arSize, 10) || 30, 22, 44);
@@ -483,8 +521,11 @@ try { npApplyTheme((JSON.parse(localStorage.getItem('feeQuran.v1')) || {}).prefs
     { id: 'alafasy', name: 'Mishary Rashid Alafasy', dir: 'Alafasy_128kbps' },
     { id: 'abdulbasit', name: 'Abdul Basit Abdul Samad (Murattal)', dir: 'Abdul_Basit_Murattal_192kbps' },
     { id: 'husary', name: 'Mahmoud Khalil Al-Husary', dir: 'Husary_128kbps' },
-    { id: 'minshawi', name: 'Mohamed Siddiq Al-Minshawi (Murattal)', dir: 'Minshawy_Murattal_128kbps' }
+    { id: 'minshawi', name: 'Mohamed Siddiq Al-Minshawi (Murattal)', dir: 'Minshawy_Murattal_128kbps' },
+    { id: 'dosari', name: 'Yasser Al-Dosari', dir: 'Yasser_Ad-Dussary_128kbps' } // all 6236 ayat present (EveryAyah listing, 2 Nov 2026)
   ];
+  // Colour theme ids (src/palettes.js holds the colours; tests check the two lists match).
+  const PALETTES = ['emerald', 'madinah', 'iznik', 'sand', 'night', 'kaaba'];
   const RATES = [0.75, 1, 1.25];
   const REPEATS = [1, 3, 5, 10, 'loop'];
   const reciter = id => RECITERS.find(r => r.id === id) || RECITERS[0];
@@ -554,7 +595,7 @@ try { npApplyTheme((JSON.parse(localStorage.getItem('feeQuran.v1')) || {}).prefs
   // Short surahs suggested for starting hifz, per SPEC: 1, then 114 back to 78.
   const SUGGESTED = [1].concat(Array.from({ length: 37 }, (_, i) => 114 - i));
 
-  const api = { KEY, PAGES, INTERVALS, GOALS, SUGGESTED, dayKey, addDays, diffDays, fresh, migrate, validBackup, mergeBackup, markDone, unmarkDone, pagesDone, todayCount, khatamComplete, firstUndoneFrom, newKhatam, dayMet, streak, bestStreak, pace, projection, memorise, unmemorise, review, dueList, memorisedIn, memorisedTotal, splitBismillah, letterForms, pickArabicVoice, AUDIO_HOST, RECITERS, RATES, REPEATS, reciter, audioUrl, audioQueue, audioNext, audioStart, arNum, words, buildIndex, search, ics };
+  const api = { KEY, PAGES, INTERVALS, GOALS, SUGGESTED, dayKey, addDays, diffDays, fresh, migrate, validBackup, mergeBackup, markDone, unmarkDone, pagesDone, todayCount, khatamComplete, firstUndoneFrom, newKhatam, dayMet, streak, bestStreak, pace, projection, memorise, unmemorise, review, dueList, memorisedIn, memorisedTotal, splitBismillah, letterForms, pickArabicVoice, AUDIO_HOST, RECITERS, PALETTES, RATES, REPEATS, reciter, audioUrl, audioQueue, audioNext, audioStart, arNum, words, buildIndex, search, ics };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.QCore = api;
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
@@ -617,6 +658,8 @@ try { npApplyTheme((JSON.parse(localStorage.getItem('feeQuran.v1')) || {}).prefs
     hub: '<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>'
   };
   const svg = (k, sz = 20, fill) => `<svg width="${sz}" height="${sz}" viewBox="0 0 24 24" fill="${fill ? 'currentColor' : 'none'}" stroke="${fill ? 'none' : 'currentColor'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ico[k]}</svg>`;
+  // Eight-pointed star (two overlapping squares, as in Rub el Hizb and zellige tilework): geometry only.
+  const star = col => `<svg viewBox="0 0 100 100" aria-hidden="true"><g fill="none" stroke="${col}" stroke-width="5"><rect x="22" y="22" width="56" height="56"/><rect x="22" y="22" width="56" height="56" transform="rotate(45 50 50)"/></g></svg>`;
   const logo = () => $('#logoTpl').innerHTML.replace('<svg', '<svg class="logo" aria-hidden="true"');
   const sname = s => I.surah(s).translit;
   const goalLabel = g => g < 1 ? '½ page' : g + (g === 1 ? ' page' : ' pages');
@@ -966,8 +1009,11 @@ try { npApplyTheme((JSON.parse(localStorage.getItem('feeQuran.v1')) || {}).prefs
         ${seg('arate', C.RATES.map(r => [r, rateLabel(r)]), P.audioRate)}
         <p class="small muted" style="line-height:1.5">Recorded recitation, ayah by ayah, streamed from EveryAyah.com, so it needs internet. Tap the play button on a page, or an ayah number, to start. Nothing else in the app uses the network.</p></section>
       <section class="card"><h2 style="margin-top:0">Appearance</h2>
-        ${seg('theme', [['auto', 'Auto'], ['light', 'Light'], ['dark', 'Dark']], P.theme)}
-        ${seg('pal', Object.keys(NP_PALETTES).map(k => [k, NP_PALETTES[k].name]), P.palette)}</section>
+        <div class="small muted" style="margin-bottom:8px">Colour theme</div>
+        <div class="thgrid" id="pal" role="radiogroup" aria-label="Colour theme">${Object.keys(NP_PALETTES).map(k => { const t = NP_PALETTES[k], c = t[npMode(Object.assign({}, P, { palette: k }))], on = (NP_PALETTES[P.palette] ? P.palette : NP_DEFAULT_PALETTE) === k;
+          return `<button class="thc ${on ? 'on' : ''}" data-v="${k}" role="radio" aria-checked="${on}" aria-label="${esc(t.name)}: ${esc(t.desc)}"><span class="sw3" style="background:${c.bg}"><i style="background:${c.bg}"></i><i style="background:${c.accent}"></i><i style="background:${c.gold}"></i>${star(c.gold)}</span><span class="tl"><b>${esc(t.name)}${on ? '<span class="tick" aria-hidden="true">✓</span>' : ''}</b><span>${esc(t.desc)}${t.only === 'dark' ? ' · always dark' : ''}</span></span></button>`; }).join('')}</div>
+        <div class="small muted" style="margin-bottom:6px">Light or dark</div>
+        ${(NP_PALETTES[P.palette] || {}).only ? `<p class="small muted modenote">${esc(NP_PALETTES[P.palette].name)} is a night theme, so it always uses dark colours. Pick another theme to use Auto, Light or Dark.</p>` : seg('tmode', [['auto', 'Auto'], ['light', 'Light'], ['dark', 'Dark']], P.theme)}</section>
       <section class="card"><h2 style="margin-top:0">Daily reminder</h2>
         <div class="set"><div class="l"><b>Reminder time</b></div><input type="time" id="s-time" value="${esc(P.remindAt)}" style="width:130px" aria-label="Reminder time"></div>
         <button class="btn" id="s-ics" style="margin-top:8px">Add daily reminder to Calendar</button>
@@ -986,7 +1032,7 @@ try { npApplyTheme((JSON.parse(localStorage.getItem('feeQuran.v1')) || {}).prefs
     $('#swipe').onclick = e => { const b = e.target.closest('[data-v]'); if (b) set('swipeRtl', b.dataset.v === 'rtl'); };
     $('#recs').onclick = e => { const b = e.target.closest('[data-r]'); if (b) { if (AU.q.length) auStop(); set('reciter', b.dataset.r); } };
     $('#arate').onclick = e => { const b = e.target.closest('[data-v]'); if (b) { set('audioRate', parseFloat(b.dataset.v)); AU.el.playbackRate = S.prefs.audioRate; } };
-    $('#theme').onclick = e => { const b = e.target.closest('[data-v]'); if (b) set('theme', b.dataset.v); };
+    if ($('#tmode')) $('#tmode').onclick = e => { const b = e.target.closest('[data-v]'); if (b) set('theme', b.dataset.v); };
     $('#pal').onclick = e => { const b = e.target.closest('[data-v]'); if (b) set('palette', b.dataset.v); };
     $('#s-time').onchange = e => { if (/^\d\d:\d\d$/.test(e.target.value)) set('remindAt', e.target.value); };
     $('#s-ics').onclick = () => download('path-to-firdaus-reminder.ics', C.ics(P.remindAt, new Date(), APP_URL), 'text/calendar');
